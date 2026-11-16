@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#173b63">
+<meta name="description" content="Aplikasi belajar kosakata Jepang Minna no Nihongo.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>Kotoba Jepang</title>
+<style>
+:root{--navy:#173b63;--blue:#e8f1fb;--ink:#172536;--muted:#64748b;--line:#dce4ee;--bg:#f5f8fc;--green:#16845b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:var(--navy);color:white;padding:22px 18px 26px;border-radius:0 0 24px 24px}
+.wrap{max-width:760px;margin:auto;padding:0 16px}header .wrap{padding:0 4px}
+.brand{display:flex;align-items:center;gap:12px}.logo{width:48px;height:48px;border-radius:14px;background:#fff;color:var(--navy);display:grid;place-items:center;font-size:27px;font-weight:800}
+h1{font-size:23px;margin:0}header p{margin:4px 0 0;color:#d6e4f3;font-size:13px}
+main{padding:18px 0 36px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:15px}.stat,.panel{background:white;border:1px solid var(--line);border-radius:16px;padding:14px}.stat b{display:block;font-size:20px}.stat span{font-size:12px;color:var(--muted)}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:12px 0}.tab,button{border:0;border-radius:12px;padding:11px 12px;font-weight:650;cursor:pointer}.tab{background:#e8edf4;color:#34465b}.tab.active,button.primary{background:var(--navy);color:white}button.secondary{background:#e8edf4;color:#23364b}button:disabled{opacity:.45;cursor:not-allowed}
+.panel{margin-top:12px}.row{display:flex;align-items:center;justify-content:space-between;gap:10px}.muted{color:var(--muted);font-size:13px}.progress{height:7px;background:#e8edf4;border-radius:99px;overflow:hidden;margin:10px 0 16px}.progress>div{height:100%;background:var(--green);width:0}
+.flash{min-height:230px;border:1px solid var(--line);border-radius:18px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:22px;background:linear-gradient(145deg,#fff,#f7faff);cursor:pointer}
+.flash .kanji{font-size:42px;font-weight:750}.flash .kana{font-size:22px;color:var(--green);margin-top:6px}.flash .meaning{font-size:22px;font-weight:700;margin-top:14px}.flash .romaji{color:var(--muted);margin-top:4px}
+.actions{display:flex;gap:8px;margin-top:12px}.actions button{flex:1}
+input[type=search]{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;font:inherit;margin:9px 0}
+.list{display:grid;gap:8px}.word{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid #edf1f5;padding:10px 2px}.word:last-child{border:0}.word strong{font-size:20px}.word small{display:block;color:var(--muted)}.word .meaning{text-align:right;font-size:14px}
+.options{display:grid;gap:8px;margin-top:12px}.options button{background:#f0f4f8;color:var(--ink);text-align:left;border:1px solid var(--line)}.options button.correct{background:#e3f5ed;border-color:#72c6a2}.options button.wrong{background:#fff0f0;border-color:#e5a0a0}
+.notice{background:#fff8e8;border:1px solid #f1dfb6;padding:12px;border-radius:12px;font-size:13px;color:#6b531d;margin-top:14px}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:8px}
+@media(min-width:600px){.flash{min-height:270px}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><div class="brand"><div class="logo">日</div><div><h1>Kotoba Jepang</h1><p>Minna no Nihongo · Belajar kosakata</p></div></div></div></header>
+<main class="wrap">
+<div class="stats"><div class="stat"><b id="total">40</b><span>Kosakata</span></div><div class="stat"><b id="learned">0</b><span>Kartu dibuka</span></div><div class="stat"><b id="best">0/10</b><span>Skor terbaik</span></div></div>
+<nav class="tabs"><button class="tab active" data-tab="cards">Kartu</button><button class="tab" data-tab="quiz">Kuis</button><button class="tab" data-tab="dictionary">Daftar</button></nav>
+<section id="cards" class="panel">
+ <div class="row"><b>Kartu hafalan · Bab 1</b><span class="muted" id="cardCount">1 / 40</span></div>
+ <div class="progress"><div id="cardProgress"></div></div>
+ <div class="flash" id="flash" role="button" tabindex="0" aria-label="Ketuk untuk melihat arti">
+  <span class="muted">KANJI</span><div class="kanji" id="kanji"></div><div class="muted" id="hint">Ketuk kartu untuk melihat jawaban</div>
+  <div class="kana" id="kana" hidden></div><div class="romaji" id="romaji" hidden></div><div class="meaning" id="meaning" hidden></div>
+ </div>
+ <div class="actions"><button class="secondary" id="prev">Sebelumnya</button><button class="primary" id="reveal">Lihat arti</button><button class="secondary" id="next">Selanjutnya</button></div>
+ <p class="muted">Baca kanji, hiragana, romaji, lalu artinya. Progres tersimpan di perangkat ini.</p>
+</section>
+<section id="quiz" class="panel" hidden>
+ <div class="row"><b>Latihan pilihan ganda</b><span class="muted" id="quizCount">Soal 1 / 10</span></div>
+ <div class="progress"><div id="quizProgress"></div></div>
+ <div style="text-align:center;padding:18px 0"><div class="kanji" style="font-size:42px" id="qKanji"></div><div class="muted" id="qKana"></div><p><b>Apa arti kosakata ini?</b></p></div>
+ <div class="options" id="options"></div><p id="feedback" aria-live="polite"></p>
+ <div class="actions"><button class="primary" id="nextQuestion" disabled>Soal berikutnya</button><button class="secondary" id="restart">Ulangi kuis</button></div>
+ <p class="muted" id="quizResult"></p>
+</section>
+<section id="dictionary" class="panel" hidden>
+ <b>Daftar kosakata Bab 1</b><input type="search" id="search" placeholder="Cari kanji, hiragana, romaji, atau arti...">
+ <div class="list" id="wordList"></div>
+</section>
+<div class="notice">Catatan: daftar ini adalah materi belajar Bab 1 yang disusun untuk aplikasi, bukan pengganti buku resmi. Beberapa kata sapaan dan ungkapan ditulis sesuai penggunaan umum.</div>
+</main><footer>Kotoba Jepang · Belajar sedikit demi sedikit setiap hari 🇯🇵</footer>
+<script>
+const words = [["私", "わたし", "Watashi", "Saya"], ["私たち", "わたしたち", "Watashitachi", "Kami / kita"], ["あなた", "あなた", "Anata", "Anda / kamu"], ["あの人", "あのひと", "Ano hito", "Orang itu"], ["あの方", "あのかた", "Ano kata", "Beliau (sopan)"], ["皆さん", "みなさん", "Minasan", "Semuanya"], ["～さん", "～さん", "-san", "Sapaan sopan"], ["～ちゃん", "～ちゃん", "-chan", "Panggilan akrab"], ["～君", "～くん", "-kun", "Panggilan untuk laki-laki"], ["～人", "～じん", "-jin", "Orang (kebangsaan)"], ["先生", "せんせい", "Sensei", "Guru"], ["教師", "きょうし", "Kyoushi", "Pengajar"], ["学生", "がくせい", "Gakusei", "Pelajar / mahasiswa"], ["会社員", "かいしゃいん", "Kaishain", "Karyawan perusahaan"], ["社員", "しゃいん", "Shain", "Pegawai perusahaan"], ["銀行員", "ぎんこういん", "Ginkouin", "Pegawai bank"], ["医者", "いしゃ", "Isha", "Dokter"], ["研究者", "けんきゅうしゃ", "Kenkyuusha", "Peneliti"], ["エンジニア", "エンジニア", "Enjinia", "Insinyur"], ["大学", "だいがく", "Daigaku", "Universitas"], ["病院", "びょういん", "Byouin", "Rumah sakit"], ["電気", "でんき", "Denki", "Listrik"], ["誰", "だれ", "Dare", "Siapa"], ["何歳", "なんさい", "Nansai", "Umur berapa"], ["何", "なん", "Nan", "Apa"], ["日本", "にほん", "Nihon", "Jepang"], ["日本人", "にほんじん", "Nihonjin", "Orang Jepang"], ["日本語", "にほんご", "Nihongo", "Bahasa Jepang"], ["初めまして", "はじめまして", "Hajimemashite", "Salam kenal"], ["どうぞよろしく", "どうぞよろしく", "Douzo yoroshiku", "Mohon bantuannya"], ["失礼ですが", "しつれいですが", "Shitsurei desu ga", "Permisi, tetapi..."], ["お名前", "おなまえ", "Onamae", "Nama (sopan)"], ["こちら", "こちら", "Kochira", "Sebelah sini / orang ini"], ["どなた", "どなた", "Donata", "Siapa (sopan)"], ["はい", "はい", "Hai", "Ya"], ["いいえ", "いいえ", "Iie", "Tidak"], ["そうです", "そうです", "Sou desu", "Betul / benar"], ["そうじゃありません", "そうじゃありません", "Sou ja arimasen", "Bukan begitu"], ["～から来ました", "～からきました", "-kara kimashita", "Datang dari ..."], ["どうぞ", "どうぞ", "Douzo", "Silakan"]];
+let index=0, revealed=false, opened=new Set(JSON.parse(localStorage.getItem('kj_opened')||'[]'));
+let quiz=[], qIndex=0, score=0, answered=false;
+const $=id=>document.getElementById(id);
+$('total').textContent=words.length;
+function updateStats(){ $('learned').textContent=opened.size; $('best').textContent=(localStorage.getItem('kj_best')||'0')+'/10'; }
+function showCard(){
+ const w=words[index]; $('kanji').textContent=w[0];$('kana').textContent=w[1];$('romaji').textContent=w[2];$('meaning').textContent=w[3];
+ $('cardCount').textContent=(index+1)+' / '+words.length;$('cardProgress').style.width=((index+1)/words.length*100)+'%';
+ ['kana','romaji','meaning'].forEach(x=>$(x).hidden=!revealed);$('hint').hidden=revealed;$('reveal').textContent=revealed?'Sembunyikan':'Lihat arti';
+ if(revealed){opened.add(index);localStorage.setItem('kj_opened',JSON.stringify([...opened]));updateStats();}
+}
+function flip(){revealed=!revealed;showCard()}
+$('flash').addEventListener('click',flip);$('flash').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();flip()}});
+$('reveal').onclick=flip;$('prev').onclick=()=>{index=(index-1+words.length)%words.length;revealed=false;showCard()};
+$('next').onclick=()=>{index=(index+1)%words.length;revealed=false;showCard()};
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));['cards','quiz','dictionary'].forEach(x=>$(x).hidden=x!==b.dataset.tab);});
+function renderList(filter=''){const f=filter.toLowerCase();$('wordList').innerHTML='';words.forEach((w,i)=>{if(!w.join(' ').toLowerCase().includes(f))return;const d=document.createElement('div');d.className='word';const a=document.createElement('div'),s=document.createElement('strong'),sm=document.createElement('small');s.textContent=w[0]+'　'+w[1];sm.textContent=w[2];a.append(s,sm);const m=document.createElement('div');m.className='meaning';m.textContent=w[3];d.append(a,m);$('wordList').append(d);});}
+$('search').oninput=e=>renderList(e.target.value);
+function startQuiz(){quiz=[];let ids=[...words.keys()];for(let i=0;i<10;i++){let id=ids.splice(Math.floor(Math.random()*ids.length),1)[0];let opts=[words[id][3]];while(opts.length<4){let v=words[Math.floor(Math.random()*words.length)][3];if(!opts.includes(v))opts.push(v);}quiz.push({id,opts:opts.sort(()=>Math.random()-.5)});}qIndex=0;score=0;answered=false;$('quizResult').textContent='';renderQuestion();}
+function renderQuestion(){let q=quiz[qIndex],w=words[q.id];$('qKanji').textContent=w[0];$('qKana').textContent=w[1];$('quizCount').textContent=`Soal ${qIndex+1} / 10`; $('quizProgress').style.width=((qIndex+1)/10*100)+'%';$('feedback').textContent='';$('nextQuestion').disabled=true;$('nextQuestion').textContent=qIndex===9?'Lihat hasil':'Soal berikutnya';$('options').innerHTML='';q.opts.forEach(opt=>{let b=document.createElement('button');b.textContent=opt;b.onclick=()=>{if(answered)return;answered=true;let ok=opt===w[3];if(ok)score++;b.classList.add(ok?'correct':'wrong');[...$('options').children].forEach(x=>{x.disabled=true;if(x.textContent===w[3])x.classList.add('correct')});$('feedback').textContent=ok?'Benar! よくできました！':'Belum tepat. Jawabannya: '+w[3];$('nextQuestion').disabled=false;};$('options').append(b);});}
+$('nextQuestion').onclick=()=>{if(!answered)return;if(qIndex<9){qIndex++;answered=false;renderQuestion();}else{let best=Number(localStorage.getItem('kj_best')||0);if(score>best)localStorage.setItem('kj_best',score);$('qKanji').textContent='🎉';$('qKana').textContent='Kuis selesai';$('options').innerHTML='';$('feedback').textContent=`Nilai kamu ${score} dari 10`; $('nextQuestion').disabled=true;$('quizResult').textContent=score>=8?'Hebat! Pertahankan!':'Terus latihan, kamu pasti bisa!';updateStats();}};
+$('restart').onclick=startQuiz;
+showCard();renderList();updateStats();startQuiz();
+if('serviceWorker' in navigator && location.protocol.startsWith('http'))window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+</script></body></html>
